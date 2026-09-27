@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Копировщик серверов Lolka</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #fff; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #16213e; padding: 30px; border-radius: 10px; }
+        h1 { color: #e94560; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #0f3460; background: #0f3460; color: #fff; }
+        button { margin-top: 20px; padding: 12px 25px; background: #e94560; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #c73650; }
+        #result { margin-top: 20px; background: #0f3460; padding: 15px; border-radius: 5px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Копировщик серверов Lolka</h1>
+        <p>Заполни данные, чтобы сгенерировать файл для переноса.</p>
+
+        <label for="serverName">Название сервера:</label>
+        <input type="text" id="serverName" placeholder="Мой крутой сервер">
+
+        <label for="roles">Роли (каждая с новой строки, в формате Название,Цвет,Права):</label>
+        <textarea id="roles" rows="4" placeholder="Админ,#FF0000,all&#10;Модератор,#00FF00,kick,ban"></textarea>
+
+        <label for="channels">Каналы (каждый с новой строки, в формате Название,Тип):</label>
+        <textarea id="channels" rows="4" placeholder="общий,text&#10;Голосовой,voice"></textarea>
+
+        <button onclick="generateJSON()">Сгенерировать файл</button>
+
+        <div id="result">
+            <h3>✅ Файл готов!</h3>
+            <p>Скачай его и загрузи в Lolka при создании сервера.</p>
+            <a id="downloadLink" download="lolka_server_template.json">📥 Скачать JSON</a>
+        </div>
+    </div>
+
+    <script>
+        function generateJSON() {
+            const serverName = document.getElementById('serverName').value;
+            const rolesText = document.getElementById('roles').value;
+            const channelsText = document.getElementById('channels').value;
+
+            const roles = rolesText.split('\n').filter(line => line.trim() !== '').map(line => {
+                const parts = line.split(',');
+                return { name: parts[0]?.trim(), color: parts[1]?.trim(), permissions: parts[2]?.trim() };
+            });
+
+            const channels = channelsText.split('\n').filter(line => line.trim() !== '').map(line => {
+                const parts = line.split(',');
+                return { name: parts[0]?.trim(), type: parts[1]?.trim() || 'text' };
+            });
+
+            const template = {
+                server_name: serverName,
+                roles: roles,
+                channels: channels
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(template, null, 2));
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = dataStr;
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
